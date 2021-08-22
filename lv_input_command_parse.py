@@ -3,8 +3,12 @@
 import re,os
 import argparse
 from typing import List, Tuple
+from debug.debug_print import *
 
 class ParseInputCommand:
+    __TAG = "ParseInputCommand"
+    __DEBUG = True
+
     __CMD_FILE_PATH = re.compile(r'dir=(?P<file_path>.*)')
     __CMD_FILE_NUM = re.compile(r'num=(?P<num>[0-9]+)')
     __CMD_SHORT = re.compile(r'-(?P<cmd>[a-z]+)')
@@ -12,6 +16,9 @@ class ParseInputCommand:
 
     __ARG_TYPE_1 = re.compile(r'(?P<name>.*)=(?P<value>.*)')
     __ARG_TYPE_2 = re.compile(r'-(?P<value>[a-z,A-Z]+)')
+
+    def __print(self, msg):
+        print_info(self.__TAG, self.__DEBUG, msg)
 
     def __get_files_num(self):
         self.__args['num'] = self.__parser.parse_args().num
@@ -57,16 +64,18 @@ class ParseInputCommand:
         print(self.__args['ignore-mark'])
 
     def __loading_args(self):
-        self.__parser.add_argument('-p',    '--path',   default='.')
-        self.__parser.add_argument('-n',    '--num',    type=int,   default=2)
-        self.__parser.add_argument('-b',    '--base_num', type=int, default=0)
-        self.__parser.add_argument('-t',    '--type',   default='bugreport')
-        self.__parser.add_argument('-d',    action='store_true',    default=False)
-        self.__parser.add_argument('-o',    default='./result/')
+        self.__parser.add_argument('-p',    '--path',       default='.')
+        self.__parser.add_argument('-n',    '--num',        type=int,   default=2)
+        self.__parser.add_argument('-b',    '--base_num',   type=int, default=0)
+        self.__parser.add_argument('-t',    '--type',       default='bugreport')
+        self.__parser.add_argument('-o',    '--result',     default='./result/')
+        self.__parser.add_argument('-d',        action='store_true',    default=False)
         self.__parser.add_argument('--order',   action='store_true',    default=True)
         self.__parser.add_argument('--ignore',  action='store_true',    default=True)
         self.__parser.add_argument('--base',    default='')
         self.__args['path'] = self.__parser.parse_args().path
+        self.__args['result'] = self.__parser.parse_args().result
+        self.__print(self.__args['result'])
 
 
     def __parse_args(self):

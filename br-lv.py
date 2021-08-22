@@ -45,9 +45,11 @@ for ele in files_list:
     files_content.append(FileInfo(ele))
 
 result = BootingResult(cmd_info)
+result.write_bugreport_by_file(files_content)
 
 if cmd_info.get_file_type() == 'bugreport':
     print(1)
     for rule_func in iter_rules():
         tmp = rule_func(cmd_info, files_content)
         result = reflash_result(result, tmp)
+

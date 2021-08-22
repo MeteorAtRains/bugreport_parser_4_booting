@@ -1,10 +1,10 @@
 # -*- coding: UTF-8 -*-
 
 import re
+from result import BootingResult
 from bugreport_class import BugreportParsedResult
 from lv_input_command_parse import ParseInputCommand
 from typing import Dict,List,Tuple
-from result import BootingResult
 
 RULE_BOOT_PROGRESS_TIME_EVENTLOG = re.compile(r'(?P<moment>(boot_progress* | *_animation_done))'
                                 r': (?P<timems>)')
@@ -93,7 +93,7 @@ def paser_boot_progress_time(r:BugreportParsedResult):
 
 
 def rule_parsing_bootting_time(c:ParseInputCommand, f:list()) -> BootingResult:
-    b_res = BootingResult('')
+    b_res = BootingResult(c)
     print("in bootting time")
 
     for onefile in f:

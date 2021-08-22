@@ -4,7 +4,7 @@ from typing import Dict, Tuple, List
 import re
 
 from bugreport_class import BugreportParsedResult
-from rules.get_boot_progress_time import *
+from common.com_data_struct import BOOT_STATUS
 from common.com_kernel_time_reform import *
 
 ################################################# 方法类说明 ###############################################
@@ -18,14 +18,6 @@ from common.com_kernel_time_reform import *
 #   bugreport| 系统提取，284  |c-bugreport-toco_global-RKQ1.200826.002-2020-11-18-14-54-17.txt|
 #   ------------------------------------------------------------------------------------------------------
 ##########################################################################################################
-
-class BOOT_STATUS :
-    NORMALL = int(0)
-    EXIT_NOT_END = int(1)
-    BOOT_REPEATED_AND_SUCCESS = int(2)
-    BOOT_REPEATED_AND_FAILED = int(3)
-    BOOT_SKIP_PERIOD_AND_SUCCESS = int(4)
-    NO_BOOT_INFO = int(5)
 
 class FileInfo:
     __FI_FILE_NAME = re.compile(r'(?P<testkind>[cd]{1})-(?P<kind>([a-z]*))-(?P<other>.+)\.txt')
@@ -156,3 +148,9 @@ class FileInfo:
     #     self.__parse_bugreport()
     def create_new_file(self):
         self.__create_new_file()
+
+    def name(self):
+        return self.__property['name']
+
+    def get_boot_progress(self):
+        return self.__property['boot_progress']
