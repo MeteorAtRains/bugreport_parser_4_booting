@@ -1,14 +1,13 @@
 # -*- coding: UTF-8 -*-
 
 import re
-from bugreport_class import BugreportParsedResult
+from m_class.bugreport_class import BugreportParsedResult
 
 def kernel_time_reform(r:BugreportParsedResult):
     if r.kernel_log[0][3] != 'logcat':
         return False
     else:
         ref_time = r.kernel_log[0][1]['time']
-        print(ref_time.year)
 
     kernel_newlog = list()
 
@@ -28,7 +27,6 @@ def kernel_time_reform2(r:BugreportParsedResult):
         return False
     else:
         ref_time = r.kernel_log[0][1]['time']
-        print(ref_time.year)
 
     kernel_newlog = list()
 

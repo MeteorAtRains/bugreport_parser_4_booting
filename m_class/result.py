@@ -1,15 +1,15 @@
 # -*- coding: UTF-8 -*-
 
 from typing import List, Dict
-
-from lv_input_command_parse import ParseInputCommand
+import os
+from m_class.lv_input_command_parse import ParseInputCommand
+from m_class.file_info_class import FileInfo
 from debug.debug_print import *
-from file_info_class import FileInfo
 from common.com_data_struct import SingleResult
 
 class BootingResult:
     __TAG = 'BootingResult'
-    __DEBUG = True
+    __DEBUG = False
 
     def __print(self, msg):
         print_info(self.__TAG, self.__DEBUG, msg)
@@ -17,6 +17,7 @@ class BootingResult:
     def __set_cmds(self, c: ParseInputCommand):
         self.__content['path'] = c.args['result']
         self.__content['type'] = c.args['type']
+        self.__print(self.__content['path'])
 
     def __init__(self, cmd: ParseInputCommand):
         self.__content = {
@@ -28,6 +29,10 @@ class BootingResult:
             'sp'        : List[SingleResult],
             'file_name' : list(),
         }
+        self.__res_bugreport = {
+            'com'   : list(),
+        }
+        self.__res = dict()
         self.__dispersing_files = dict()
 
         self.__set_cmds(cmd)
@@ -36,7 +41,9 @@ class BootingResult:
     @property
     def content(self):
         return self.__content
-
+    @property
+    def res(self):
+        return self.__res
     # @property
     # def content_with_key(self, key):
     #     return self.__content[key]
@@ -52,9 +59,30 @@ class BootingResult:
             for f in l:
                 if f.name() not in self.__main_file['file_name']:
                     self.__main_file['file_name'].append(f.name())
-                    sf = SingleResult(f.name())
+                    sf = SingleResult(f.name(),'')
                     sf.set_boot_progress(f.get_boot_progress())
         return
 
+    def init_diff_res_depending_on_bugreport(self, num:int, name:str):
+        count = 1
+        for i in num:
+            index = 'device' + str(i)
+            self.__res_bugreport[index] = SingleResult(name, index)
+        
+        return
+
+    def write_bugreport_res(self, fs_in:List[FileInfo], flag:bool):
+        if self.__content['type'] == 'bugreport':
+            if not os.path.exists(self.__content['path']):
+                os.makedirs(self.__content['path'])            
+            filename = 'common'
+            with open(filename, mode = 'w') as f_out:
+                f_out.writelines('tes111t\nline2')
+
+            if flag == True:
+                for f_in in fs_in:
+                    f_in.create_new_file(self.__content['path'])
+
+        return
 
 

@@ -22,7 +22,7 @@ class ParseInputCommand:
 
     def __get_files_num(self):
         self.__args['num'] = self.__parser.parse_args().num
-        print(self.__args['num'])
+        self.__print(str(self.__args['num']))
 
     def __get_files(self):
         path = os.path.abspath(self.__parser.parse_args().path)
@@ -53,15 +53,15 @@ class ParseInputCommand:
 
     def __get_parsing_type(self):
         self.__args['type'] = self.__parser.parse_args().type
-        print(self.__args['type'])
+        self.__print(self.__args['type'])
 
     def __get_result_path(self):
         self.__args['result'] = self.__parser.parse_args().reuslt
-        print(self.__args['result'])
+        self.__print(self.__args['result'])
 
     def __config_flags(self):
         self.__args['ignore-mark'] = self.__parser.parse_args().ignore
-        print(self.__args['ignore-mark'])
+        self.__print(str(self.__args['ignore-mark']))
 
     def __loading_args(self):
         self.__parser.add_argument('-p',    '--path',       default='.')
@@ -99,8 +99,7 @@ class ParseInputCommand:
         self.__loading_args()
         self.__parse_args()
 
-        # print(self.__parser)
-        print(self.__args)
+        self.__print(str(self.__args))
 
     @property
     def args(self):
@@ -109,21 +108,28 @@ class ParseInputCommand:
     def get_file_list(self):
         return self.__args['file_list']
     
-    def get_file_type(self):
+    def get_files_type(self):
         return self.__args['type']
     
     def set_main_device(self, l: List[Tuple[str, str]]):
         n = self.__parser.parse_args().base_num
-        print('length ' + str(n))
+        self.__print('length ' + str(n))
         if n > 0 and n < len(l):
             self.__args['main_device'] = l[n-1][0]
-            print('main device')
-            print(self.__args['main_device'])
+            self.__print('main device')
+            self.__print(self.__args['main_device'])
         if self.__parser.parse_args().base != '':
             for ele in l:
                 if self.__parser.parse_args().base == ele[0]:
                     self.__args['main_device'] = ele[0]
                     return
         self.__args['main_device'] = l[0][0]
-        print('main device')
-        print(self.__args['main_device'])
+        self.__print('main device')
+        self.__print(self.__args['main_device'])
+    
+    def get_main_device(self):
+        return self.__args['main_device']
+
+    def get_files_num(self):
+        return self.__args['num']
+

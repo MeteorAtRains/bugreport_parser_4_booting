@@ -7,20 +7,29 @@ from types import ModuleType
 import argparse
 import rules
 
-from lv_input_command_parse import ParseInputCommand
+from m_class.lv_input_command_parse import ParseInputCommand
+from m_class.result import BootingResult
+from m_class.bugreport_class import BugreportParsedResult
+from m_class.file_info_class import FileInfo
 # from parse_all import parseAll
-from rules import *
+from rules.rule_parsing_bootting_time import rule_parsing_bootting_time
 from common.com_reflash import *
 from common.com_file_name import *
-from file_info_class import FileInfo
-from result import BootingResult
-from bugreport_class import BugreportParsedResult
+from debug.debug_print import *
 
+_TAG = 'main'
+_DEBUG = True
+
+def print_main(info):
+    print_info(_TAG, _DEBUG, str(info))
 
 def iter_rules():
     for item in dir(rules):
+        # print_main(item)
+        # print_main(isinstance(getattr(rules, item), ModuleType))
         if isinstance(getattr(rules, item), ModuleType):
             rule_module = __import__(f'rules.{item}', fromlist=['*'])
+            print_main(rule_module)
             rule_func_nr = len([i for i in dir(rule_module)
                                 if i.startswith('rule_')])
             if rule_func_nr != 1:
@@ -37,7 +46,7 @@ fnum = cmd_info.args['num']
 ftype = cmd_info.args['type']
 files_list = get_file_list(fpath, ftype, fnum)
 files_content = list()
-file_type = cmd_info.get_file_type()
+file_type = cmd_info.get_files_type()
 
 cmd_info.set_main_device(files_list)
 
@@ -45,11 +54,17 @@ for ele in files_list:
     files_content.append(FileInfo(ele))
 
 result = BootingResult(cmd_info)
-result.write_bugreport_by_file(files_content)
+# result.write_bugreport_by_file(files_content)
 
-if cmd_info.get_file_type() == 'bugreport':
-    print(1)
-    for rule_func in iter_rules():
-        tmp = rule_func(cmd_info, files_content)
-        result = reflash_result(result, tmp)
+if cmd_info.get_files_type() == 'bugreport':
+    print_main('start')
+    result.res['rule_parsing_bootting_time'] = rule_parsing_bootting_time(cmd_info, files_content)
+    # result.res['parsing_bootting_time'] = 
+    # for rule_func in iter_rules():
+    #     print_main('func')
+    #     tmp = rule_func(cmd_info, files_content)
+    #     result = reflash_result(result, tmp)
+
+result.write_bugreport_res(files_content, True)
+
 

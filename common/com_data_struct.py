@@ -17,9 +17,11 @@ class SingleResult:
     def __print(self, msg):
         print_info(self.__TAG, self.__DEBUG, msg)
 
-    def __init__(self, name:str):
+    def __init__(self, name:str, index:str):
         self.__name = name
+        self.__index = index
         self.__boot_progress = str()
+        self.__res = list()
 
     @property
     def name(self):

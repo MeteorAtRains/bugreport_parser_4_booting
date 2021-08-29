@@ -3,9 +3,10 @@
 from typing import Dict, Tuple, List
 import re
 
-from bugreport_class import BugreportParsedResult
+from m_class.bugreport_class import BugreportParsedResult
 from common.com_data_struct import BOOT_STATUS
 from common.com_kernel_time_reform import *
+from debug.debug_print import *
 
 ################################################# 方法类说明 ###############################################
 #   1.通过出入文件名构建文件类：FileInfo(<filename>)
@@ -25,6 +26,12 @@ class FileInfo:
     __FI_TIME_1 = re.compile(r'(?P<year>)-(?P<month>)-(?P<day>)-(?P<hour>)-(?P<minute>)-(?P<second>)')
     __FI_BOOT_TAG = re.compile(r'boot_progress.*|.*animation_done')
 
+    __TAG = 'FileInfo'
+    __DEBUG = True
+
+    def __print(self, msg):
+        print_info(self.__TAG, self.__DEBUG, msg)    
+
     def __parsing_file(self):
         if self.__property['kind'] == 'bugreport':
             self.__property['parse_res'] = BugreportParsedResult(self.__property['contents'])
@@ -37,7 +44,7 @@ class FileInfo:
             if self.__property['parse_res'].kernel_log[0][3] == 'dmesg':
                 self.__property['kernel2'] = kernel_get_dmesg(self.__property['parse_res'])
                 self.__property['kernel3'] = self.__property['kernel2']
-            print('bugreport文件解析成功')
+            self.__print('bugreport文件解析成功')
 
     def __check_is_boot_normal(self, bp_map: Dict):
         if len(bp_map) == 0: # 如果bp_map里边没有任何信息，说敏此次开机没有任何开机信息。
@@ -54,7 +61,6 @@ class FileInfo:
                 if bp_map[key] >= 2:
                     return BOOT_STATUS.BOOT_REPEATED_AND_FAILED
             return BOOT_STATUS.EXIT_NOT_END
-
 
     def __get_boot_progress(self, event_log) -> Tuple[list, int]:
         bp_points = list()
@@ -91,23 +97,18 @@ class FileInfo:
             boot_info = self.__get_boot_progress(self.__property['parse_res'].event_log)
             self.__property['boot_progress'] = boot_info[0]
             self.__property['boot_status'] = boot_info[1]
-            print(boot_info[0])
-            print("status")
-            print(boot_info[1])
 
     # to be confirmed
-    def __create_new_file(self):
-        if self.__log['kernel2']:
-            filename = 'kernel2_'+self.__property['nameother']+'.txt'
-            with open(filename,mode='w') as f:
-                for lineno, abtime, raw in self.__log['kernel2']:
-                    # print(line)
+    def __create_new_file(self, path:str):
+        if self.__property['kernel2']:
+            filename = path + 'kernel2_'+self.__property['name']
+            with open(filename, 'w') as f:
+                for lineno, abtime, raw in self.__property['kernel2']:
                     f.writelines('['+str(abtime)+']'+' ' +raw)
-        if self.__log['kernel3']:
-            filename = 'kernel_v3_'+self.__property['nameother']+'.txt'
-            with open(filename,mode='w') as f:
-                for lineno, abtime, raw in self.__log['kernel3']:
-                    # print(line)
+        if self.__property['kernel3']:
+            filename = path + 'kernel_v3_'+self.__property['name']
+            with open(filename, 'w') as f:
+                for lineno, abtime, raw in self.__property['kernel3']:
                     f.writelines('['+str(abtime)+']'+' ' +raw + '\n')                    
         return True
 
@@ -146,8 +147,8 @@ class FileInfo:
 
     # def parse_bugreport(self):
     #     self.__parse_bugreport()
-    def create_new_file(self):
-        self.__create_new_file()
+    def create_new_file(self, path:str):
+        self.__create_new_file(path)
 
     def name(self):
         return self.__property['name']

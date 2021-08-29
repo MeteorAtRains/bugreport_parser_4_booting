@@ -1,10 +1,12 @@
 # -*- coding: UTF-8 -*-
 
 import re
-from result import BootingResult
-from bugreport_class import BugreportParsedResult
-from lv_input_command_parse import ParseInputCommand
+from m_class.result import BootingResult
+from m_class.bugreport_class import BugreportParsedResult
+from m_class.lv_input_command_parse import ParseInputCommand
+from m_class.file_info_class import FileInfo
 from typing import Dict,List,Tuple
+from debug.debug_print import *
 
 RULE_BOOT_PROGRESS_TIME_EVENTLOG = re.compile(r'(?P<moment>(boot_progress* | *_animation_done))'
                                 r': (?P<timems>)')
@@ -19,10 +21,11 @@ RULE_BOOT_PROGRESS_TIME_RAW = re.compile(r'(?P<month>\d{2})-(?P<day>\d{2}) '
                             r'+(?P<tid>.+?) +(?P<priority>.) '
                             r'(?P<tag>.*?) *: +(?P<message>.*)')
 
-# boot_progress_time_tag = [
-#     'boot_progress_start',
-#     'boot_progress_preload_start',
-# ]
+_TAG = "rule_parsing_bootting_time"
+_DEBUG = True
+
+def _print(info:str):
+    print_info(_TAG, _DEBUG, info)
 
 def paser_boot_progress_time(r:BugreportParsedResult):
     SHOW_BOOT_PROGRESS_TIME = False
@@ -90,14 +93,70 @@ def paser_boot_progress_time(r:BugreportParsedResult):
     }
     return resall
 
+def _compare_two_bugreport(main_file:FileInfo, comparing_file:FileInfo):
+    res = list()
+    # diff_period = dict()
+    # for file_info in file_info_list:
+    #     if file_info.property['testkind'] == 'c':
+    #         c_period = file_info.property['boot_progress_time']['period']
+    #     if file_info.property['testkind'] == 'd':
+    #         d_period = file_info.property['boot_progress_time']['period']
 
+    # tag_list = [    'start_period',
+    #                 'before_preload',
+    #                 'preload_period',
+    #                 'before_system_run',
+    #                 'before_pms',
+    #                 'pms_period',
+    #                 'ams_start',
+    #                 'enable_screen',
+    #                 'after_enable_screen',
+    #                 'total']
 
-def rule_parsing_bootting_time(c:ParseInputCommand, f:list()) -> BootingResult:
-    b_res = BootingResult(c)
-    print("in bootting time")
+    # for tag in tag_list:
+    #     diff_period[tag] = int(c_period[0][str(tag)]) - int(d_period[0][str(tag)])
+    
+    # for tag in tag_list:
+    #     print(tag+': '+str(diff_period[tag]))
 
-    for onefile in f:
-        b_res.content['parsing_bootting_time'] = paser_boot_progress_time(onefile.property["parse_res"])
-        # print(b_res.content['parsing_bootting_time'])
+    # return diff_period
+    return res
+
+def _set_boot_progress(l:List[Tuple[str, int]]):
+    res = list()
+    for line in l:
+        res.append(line[0] + ': ' + str(line[1]) + 'ms')
+
+    return res
+
+def rule_parsing_bootting_time(c:ParseInputCommand, fs:List[FileInfo]) -> list:
+    _print('start')
+    _print('files num - ' + str(c.get_files_num()))
+    main_device = c.get_main_device()
+    b_res = list()
+    b_res.append('rule_parsing_bootting_time:')
+    if c.get_files_num() == 2 and c.get_files_type() == 'bugreport':
+        # main_file = FileInfo(Tuple['',''])
+        # comparing_file = FileInfo(Tuple['',''])
+        main_file = ''
+        comparing_file = ''
+        for f in fs:
+            if f.name() == main_device:
+                main_file = f
+                _print('main file name - ' + main_file.name())
+            else:
+                comparing_file = f
+                _print('comparing file name - ' + comparing_file.name())
+        b_res.append('main_device - ' + main_file.name())
+        b_res += _set_boot_progress(main_file.get_boot_progress())
+        b_res.append('\ncomparing_file - ' + comparing_file.name())
+        b_res += _set_boot_progress(comparing_file.get_boot_progress())
+
+        # b_res += paser_boot_progress_time(main_file.get_boot_progress())
+        # b_res += paser_boot_progress_time(comparing_file.get_boot_progress())
+            # print(b_res.content['parsing_bootting_time'])
+    
+    for line in b_res:
+        _print(str(line))
 
     return b_res
