@@ -77,7 +77,9 @@ class BootingResult:
                 os.makedirs(self.__content['path'])            
             filename = 'common'
             with open(filename, mode = 'w') as f_out:
-                f_out.writelines('tes111t\nline2')
+                for key in self.__res.keys():
+                    for line in self.__res[key]:
+                        f_out.writelines(line + '\n')
 
             if flag == True:
                 for f_in in fs_in:
