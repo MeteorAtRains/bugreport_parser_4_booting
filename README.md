@@ -1,2 +1,1 @@
-# py-bugparser
-python flask的bugreport解析器后端
+开机日志解析工具
